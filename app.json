@@ -1,0 +1,30 @@
+{
+  "id": "dfb405b7-d5bb-49ba-84c2-a5f19142bcde",
+  "name": "RescoIntegrations",
+  "publisher": "Resco",
+  "version": "1.0.0.3",
+  "brief": "",
+  "description": "",
+  "privacyStatement": "",
+  "EULA": "",
+  "help": "",
+  "url": "",
+  "logo": "",
+  "dependencies": [],
+  "screenshots": [],
+  "platform": "1.0.0.0",
+  "application": "18.3.0.0",
+  "idRanges": [
+    {
+      "from": 50100,
+      "to": 50149
+    }
+  ],  
+  "resourceExposurePolicy": {
+    "allowDebugging": true,
+    "allowDownloadingSource": true,
+    "includeSourceInSymbolFile": false
+  },
+  "contextSensitiveHelpUrl": "https://docs.resco.net/wiki/Integrations",
+  "runtime": "8.0"
+}
