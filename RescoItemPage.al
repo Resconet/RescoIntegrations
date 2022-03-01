@@ -89,10 +89,6 @@ page 50106 RescoItem
                 {
                     Caption = 'Common Item No.';
                 }
-                field(consumptionsQty; Rec."Consumptions (Qty.)")
-                {
-                    Caption = 'Consumptions (Qty.)';
-                }
                 field(costIsAdjusted; Rec."Cost is Adjusted")
                 {
                     Caption = 'Cost is Adjusted';
@@ -152,10 +148,6 @@ page 50106 RescoItem
                 field(durability; Rec.Durability)
                 {
                     Caption = 'Durability';
-                }
-                field(dutyClass; Rec."Duty Class")
-                {
-                    Caption = 'Duty Class';
                 }
                 field(dutyCode; Rec."Duty Code")
                 {
@@ -361,10 +353,6 @@ page 50106 RescoItem
                 {
                     Caption = 'Order Tracking Policy';
                 }
-                field(outputsQty; Rec."Outputs (Qty.)")
-                {
-                    Caption = 'Outputs (Qty.)';
-                }
                 field(overReceiptCode; Rec."Over-Receipt Code")
                 {
                     Caption = 'Over-Receipt Code';
@@ -541,14 +529,6 @@ page 50106 RescoItem
                 {
                     Caption = 'Rel. Order Receipt (Qty.)';
                 }
-                field(relScheduledNeedQty; Rec."Rel. Scheduled Need (Qty.)")
-                {
-                    Caption = 'Rel. Scheduled Need (Qty.)';
-                }
-                field(relScheduledReceiptQty; Rec."Rel. Scheduled Receipt (Qty.)")
-                {
-                    Caption = 'Rel. Scheduled Receipt (Qty.)';
-                }
                 field(reorderPoint; Rec."Reorder Point")
                 {
                     Caption = 'Reorder Point';
@@ -660,10 +640,6 @@ page 50106 RescoItem
                 field(rowVersionNumber; Rec.RowVersionNumber)
                 {
                     Caption = 'RoW Version Number';
-                }
-                field(satItemClassification; Rec."SAT Item Classification")
-                {
-                    Caption = 'SAT Item Classification';
                 }
                 field(safetyLeadTime; Rec."Safety Lead Time")
                 {
