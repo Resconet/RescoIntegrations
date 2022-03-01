@@ -125,14 +125,6 @@ page 50115 "Resco Service Order"
                 {
                     Caption = 'Bill-to Post Code';
                 }
-                field(cfdiPurpose; Rec."CFDI Purpose")
-                {
-                    Caption = 'CFDI Purpose';
-                }
-                field(cfdiRelation; Rec."CFDI Relation")
-                {
-                    Caption = 'CFDI Relation';
-                }
                 field(city; Rec.City)
                 {
                     Caption = 'City';
@@ -409,10 +401,6 @@ page 50115 "Resco Service Order"
                 {
                     Caption = 'Responsibility Center';
                 }
-                field(steTransactionID; Rec."STE Transaction ID")
-                {
-                    Caption = 'STE Transaction ID';
-                }
                 field(salespersonCode; Rec."Salesperson Code")
                 {
                     Caption = 'Salesperson Code';
@@ -556,10 +544,6 @@ page 50115 "Resco Service Order"
                 field(taxAreaCode; Rec."Tax Area Code")
                 {
                     Caption = 'Tax Area Code';
-                }
-                field(taxExemptionNo; Rec."Tax Exemption No.")
-                {
-                    Caption = 'Tax Exemption No.';
                 }
                 field(taxLiable; Rec."Tax Liable")
                 {
