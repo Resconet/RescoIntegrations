@@ -1,0 +1,91 @@
+name: $(Date:yyMMdd)$(rev:-r)
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+  tags:
+    include:
+      - "*"
+
+pool:
+  vmImage: windows-latest
+
+# https://marketplace.visualstudio.com/items?itemName=Hodor.hodor-alops
+jobs:
+- job: build_resco_integrations
+  displayName: Build Resco Integrations
+  variables:
+  - group: Docker Connection
+  steps:
+  - checkout: self
+    fetchDepth: 1
+
+  - pwsh: |
+      $AppVersion = "$(Build.SourceBranch)".StartsWith("refs/tags/") ? ".*".Insert(0, "$(Build.SourceBranch)".Substring(10)) : ""
+      Write-Host "##vso[task.setvariable variable=AppVersion;isOutput=true]$AppVersion"
+    displayName: Set Up App Version
+    name: setup
+
+  - task: ALOpsDockerCreate@1
+    displayName: Create Docker Image
+    inputs:
+      artifacttype: Sandbox
+      imageprefix: resco.integrations
+      imagenametemplate: '%IMAGE_PREFIX%.%ARTIFACT_TYPE%:%ARTIFACT_VERSION%-%ARTIFACT_COUNTRY%-%OS_VERSION%-%OS_LTSC%'
+      dockerregistry: rescocloud.azurecr.io
+      dockerusername: $(rescocloud-registry-username)
+      dockerpassword: $(rescocloud-registry-password)
+
+  - task: ALOpsDockerStart@1
+    displayName: Start Docker Image
+    inputs:
+      docker_image: $(ALOPS_BC_IMAGE)
+      docker_pull: false
+
+  - task: ALOpsDockerWait@1
+    displayName: Wait for Connections
+    inputs:
+      search_string: Ready for connections!
+
+  - task: ALOpsAppCompiler@1
+    displayName: Build App
+    inputs:
+      usedocker: true
+      nav_app_version: $(setup.AppVersion)
+      failed_on_warnings: true
+      updatebuildnumber: false
+      output_alc_logs: false
+
+  - task: ALOpsDockerRemove@1
+    displayName: Clean Up
+    condition: always()
+
+- deployment: release_resco_integrations
+  displayName: Release Resco Integrations
+  dependsOn: build_resco_integrations
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  environment: Resco Cloud
+  variables:
+    AppVersion: $[ dependencies.build_resco_integrations.outputs['setup.AppVersion'] ]
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - download: current
+          displayName: Download App
+          patterns: "**/*.app"
+
+        - task: GitHubRelease@1
+          displayName: Create GitHub Release
+          inputs:
+            gitHubConnection: Resco GitHub
+            repositoryName: Resconet/RescoIntegrations
+            target: master
+            tagSource: userSpecifiedTag
+            tag: $(AppVersion)
+            title: V$(AppVersion)
+            assets: $(Pipeline.Workspace)/**
+            isDraft: true
+            addChangeLog: false
