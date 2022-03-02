@@ -10,6 +10,7 @@ trigger:
       - "*"
 
 variables:
+  PublishArtifact: $[ne(variables['Build.Reason'], 'PullRequest')]
   Revision: $[counter(replace(variables['Build.Reason'], 'Manual', 'BatchedCI'), 1)]
 
 # https://marketplace.visualstudio.com/items?itemName=Hodor.hodor-alops
@@ -68,6 +69,7 @@ jobs:
     inputs:
       usedocker: true
       nav_app_version: $(setup.AppVersion)
+      publish_artifact: $(PublishArtifact)
       failed_on_warnings: true
       updatebuildnumber: false
       output_alc_logs: false
@@ -101,9 +103,6 @@ jobs:
           displayName: Download App
           patterns: "**/*.app"
 
-        - bash: find $(Pipeline.Workspace) -name "*.app" -exec mv -fv {} $(Build.ArtifactStagingDirectory) \;
-          displayName: Prepare App Assets
-
         - task: GitHubRelease@1
           displayName: Create GitHub Release
           inputs:
@@ -113,5 +112,6 @@ jobs:
             tagSource: userSpecifiedTag
             tag: $(AppVersion)
             title: V$(AppVersion)
+            assets: $(Pipeline.Workspace)/$(System.TeamProject)/*.app
             isDraft: true
             addChangeLog: false
