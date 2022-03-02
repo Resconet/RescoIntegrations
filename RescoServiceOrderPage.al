@@ -590,26 +590,6 @@ page 50115 "Resco Service Order"
                     ApplicationArea = All;
                     Caption = 'RescoStatus', Locked = true;
                 }
-                field(RescoFinishingDateTime; RescoFinishingDateTime)
-                {
-                    ApplicationArea = All;
-                    Caption = 'RescoFinishingDateTime', Locked = true;
-                }
-                field(RescoResponseDateTime; RescoResponseDateTime)
-                {
-                    ApplicationArea = All;
-                    Caption = 'RescoResponseDateTime', Locked = true;
-                }
-                field(RescoOrderDateTime; RescoOrderDateTime)
-                {
-                    ApplicationArea = All;
-                    Caption = 'RescoOrderDateTime', Locked = true;
-                }
-                field(RescoStartingDateTime; RescoStartingDateTime)
-                {
-                    ApplicationArea = All;
-                    Caption = 'RescoStartingDateTime', Locked = true;
-                }
                 field(RowVersionNumber; Rec.RowVersionNumber)
                 {
                     ApplicationArea = All;
@@ -623,13 +603,11 @@ page 50115 "Resco Service Order"
     begin
         Rec."Document Type" := "Service Document Type"::Order;
         ConvertRescoStatusToBCStatus();
-        SplitRescoDateTimeFieldsTo_Date_Time();
     end;
 
     trigger OnModifyRecord(): Boolean
     begin
         ConvertRescoStatusToBCStatus();
-        SplitRescoDateTimeFieldsTo_Date_Time();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -648,19 +626,10 @@ page 50115 "Resco Service Order"
             "Service Document Status"::Finished:
                 RescoStatus := 10001;
         end;
-        //combine Date and Time to DateTime, because Resco does not have time only type
-        RescoFinishingDateTime := CreateDateTime(Rec."Finishing Date", Rec."Finishing Time");
-        RescoOrderDateTime := CreateDateTime(Rec."Order Date", Rec."Order Time");
-        RescoResponseDateTime := CreateDateTime(Rec."Response Date", Rec."Response Time");
-        RescoStartingDateTime := CreateDateTime(Rec."Starting Date", Rec."Starting Time");
     end;
 
     var
         RescoStatus: Integer;
-        RescoFinishingDateTime: DateTime;
-        RescoOrderDateTime: DateTime;
-        RescoResponseDateTime: DateTime;
-        RescoStartingDateTime: DateTime;
 
     local procedure ConvertRescoStatusToBCStatus()
     begin
@@ -672,17 +641,5 @@ page 50115 "Resco Service Order"
             10001:
                 Rec.Status := "Service Document Status"::Finished;
         end;
-    end;
-
-    local procedure SplitRescoDateTimeFieldsTo_Date_Time()
-    begin
-        Rec."Finishing Date" := DT2Date(RescoFinishingDateTime);
-        Rec."Finishing Time" := DT2Time(RescoFinishingDateTime);
-        Rec."Order Date" := DT2Date(RescoOrderDateTime);
-        Rec."Order Time" := DT2Time(RescoOrderDateTime);
-        Rec."Response Date" := DT2Date(RescoResponseDateTime);
-        Rec."Response Time" := DT2Time(RescoResponseDateTime);
-        Rec."Starting Date" := DT2Date(RescoStartingDateTime);
-        Rec."Starting Time" := DT2Time(RescoStartingDateTime);
     end;
 }
