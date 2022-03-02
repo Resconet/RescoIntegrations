@@ -103,15 +103,22 @@ jobs:
           displayName: Download App
           patterns: "**/*.app"
 
+        - bash: for f in $(find . -name "*.app"); do pushd $(dirname $f) && zip $(Build.ArtifactStagingDirectory)/$(basename -s .app $f).zip $(basename $f) && popd; done
+          displayName: Prepare App Assets
+          workingDirectory: $(Pipeline.Workspace)
+
         - task: GitHubRelease@1
           displayName: Create GitHub Release
           inputs:
             gitHubConnection: Resco GitHub
             repositoryName: Resconet/RescoIntegrations
-            target: master
+            action: create
+            target: $(Build.SourceVersion)
             tagSource: userSpecifiedTag
             tag: $(AppVersion)
             title: V$(AppVersion)
-            assets: $(Pipeline.Workspace)/$(System.TeamProject)/*.app
+            assets: $(Build.ArtifactStagingDirectory)/*.zip
             isDraft: true
-            addChangeLog: false
+            changeLogCompareToRelease: lastFullRelease
+            changeLogType: issueBased
+            changeLogLabels: ''
