@@ -9,13 +9,15 @@ trigger:
     include:
       - "*"
 
-pool:
-  vmImage: windows-latest
+variables:
+  Revision: $[counter(replace(variables['Build.Reason'], 'Manual', 'BatchedCI'), 1)]
 
 # https://marketplace.visualstudio.com/items?itemName=Hodor.hodor-alops
 jobs:
 - job: build_resco_integrations
   displayName: Build Resco Integrations
+  pool:
+    vmImage: windows-latest
   variables:
   - group: Docker Connection
   steps:
@@ -34,7 +36,7 @@ jobs:
         $App = Get-Content app.json | ConvertFrom-Json
         $Version = $App.version.Substring(0, $App.version.LastIndexOf('.'))
       }
-      $AppVersion = $Version + ".*"
+      $AppVersion = $Version + ".$(Revision)"
       Write-Host "App version: $AppVersion"
       Write-Host "##vso[task.setvariable variable=AppVersion;isOutput=true]$AppVersion"
     displayName: Set Up App Version
@@ -51,7 +53,7 @@ jobs:
       dockerpassword: $(rescocloud-registry-password)
 
   - task: ALOpsDockerStart@1
-    displayName: Start Docker Image
+    displayName: Start Docker Container
     inputs:
       docker_image: $(ALOPS_BC_IMAGE)
       docker_pull: false
@@ -71,14 +73,24 @@ jobs:
       output_alc_logs: false
 
   - task: ALOpsDockerRemove@1
-    displayName: Clean Up
+    displayName: Start Docker Container
     condition: always()
+
+  - pwsh: |
+      Write-Host "Remove unwanted build tags"
+      $Tags = az pipelines build tag list --build-id $(Build.BuildId) --org $(System.CollectionUri) -p $(System.TeamProject) | ConvertFrom-Json
+      $Tags | ForEach-Object { az pipelines build tag delete --tag $_ --build-id $(Build.BuildId) --org $(System.CollectionUri) -p $(System.TeamProject) }
+    displayName: Clean Up Tags
+    env:
+      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
 
 - deployment: release_resco_integrations
   displayName: Release Resco Integrations
   dependsOn: build_resco_integrations
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   environment: Resco Cloud
+  pool:
+    vmImage: ubuntu-latest
   variables:
     AppVersion: $[ dependencies.build_resco_integrations.outputs['setup.AppVersion'] ]
   strategy:
@@ -89,6 +101,9 @@ jobs:
           displayName: Download App
           patterns: "**/*.app"
 
+        - bash: find $(Pipeline.Workspace) -name "*.app" -exec mv -fv {} $(Build.ArtifactStagingDirectory) \;
+          displayName: Prepare App Assets
+
         - task: GitHubRelease@1
           displayName: Create GitHub Release
           inputs:
@@ -98,6 +113,5 @@ jobs:
             tagSource: userSpecifiedTag
             tag: $(AppVersion)
             title: V$(AppVersion)
-            assets: $(Pipeline.Workspace)/**
             isDraft: true
             addChangeLog: false
