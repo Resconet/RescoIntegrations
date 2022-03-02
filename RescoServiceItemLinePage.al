@@ -276,21 +276,6 @@ page 50107 RescoServiceItemLine
                 {
                     Caption = 'Warranty Starting Date (Parts)';
                 }
-                field(RescoFinishingDateTime; RescoFinishingDateTime)
-                {
-                    ApplicationArea = All;
-                    Caption = 'RescoFinishingDateTime', Locked = true;
-                }
-                field(RescoResponseDateTime; RescoResponseDateTime)
-                {
-                    ApplicationArea = All;
-                    Caption = 'RescoResponseDateTime', Locked = true;
-                }
-                field(RescoStartingDateTime; RescoStartingDateTime)
-                {
-                    ApplicationArea = All;
-                    Caption = 'RescoStartingDateTime', Locked = true;
-                }
             }
         }
     }
@@ -300,34 +285,5 @@ page 50107 RescoServiceItemLine
         noGenerator: Codeunit RescoNextNoGenerator;
     begin
         Rec."Line No." := noGenerator.GetNextLineNoForServiceItemLine(Rec."Document Type", Rec."Document No.", Rec."Line No.");
-        SplitRescoDateTimeFieldsTo_Date_Time();
-    end;
-
-    trigger OnModifyRecord(): Boolean
-    begin
-        SplitRescoDateTimeFieldsTo_Date_Time();
-    end;
-
-    trigger OnAfterGetCurrRecord()
-    begin
-        //combine Date and Time to DateTime, because Resco does not have time only type
-        RescoFinishingDateTime := CreateDateTime(Rec."Finishing Date", Rec."Finishing Time");
-        RescoResponseDateTime := CreateDateTime(Rec."Response Date", Rec."Response Time");
-        RescoStartingDateTime := CreateDateTime(Rec."Starting Date", Rec."Starting Time");
-    end;
-
-    var
-        RescoFinishingDateTime: DateTime;
-        RescoResponseDateTime: DateTime;
-        RescoStartingDateTime: DateTime;
-
-    local procedure SplitRescoDateTimeFieldsTo_Date_Time()
-    begin
-        Rec."Finishing Date" := DT2Date(RescoFinishingDateTime);
-        Rec."Finishing Time" := DT2Time(RescoFinishingDateTime);
-        Rec."Response Date" := DT2Date(RescoResponseDateTime);
-        Rec."Response Time" := DT2Time(RescoResponseDateTime);
-        Rec."Starting Date" := DT2Date(RescoStartingDateTime);
-        Rec."Starting Time" := DT2Time(RescoStartingDateTime);
     end;
 }

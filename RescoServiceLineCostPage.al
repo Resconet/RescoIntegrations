@@ -657,4 +657,9 @@ page 50104 RescoServiceLineCost
     begin
         Rec.Type := "Service Line Type"::Cost;
     end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec.Type := "Service Line Type"::Cost;
+    end;
 }

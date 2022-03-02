@@ -657,4 +657,9 @@ page 50102 RescoServiceLineItem
     begin
         Rec.Type := "Service Line Type"::Item;
     end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec.Type := "Service Line Type"::Item;
+    end;
 }
