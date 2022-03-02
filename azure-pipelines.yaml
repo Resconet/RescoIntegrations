@@ -23,7 +23,19 @@ jobs:
     fetchDepth: 1
 
   - pwsh: |
-      $AppVersion = "$(Build.SourceBranch)".StartsWith("refs/tags/") ? ".*".Insert(0, "$(Build.SourceBranch)".Substring(10)) : ""
+      if ("$(Build.SourceBranch)".StartsWith("refs/tags/")) {
+        $VersionMatch = "$(Build.SourceBranch)".Substring(10) | Select-String -Pattern "([0-9`.]+)(-.*)?"
+        if (-not $VersionMatch.Matches.Success) {
+          Write-Host "##[error]Wrong tag format"
+          Exit 1
+        }
+        $Version = $VersionMatch.Matches.Groups[1].Value
+      } else {
+        $App = Get-Content app.json | ConvertFrom-Json
+        $Version = $App.version.Substring(0, $App.version.LastIndexOf('.'))
+      }
+      $AppVersion = $Version + ".*"
+      Write-Host "App version: $AppVersion"
       Write-Host "##vso[task.setvariable variable=AppVersion;isOutput=true]$AppVersion"
     displayName: Set Up App Version
     name: setup
