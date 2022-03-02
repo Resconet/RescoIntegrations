@@ -653,4 +653,9 @@ page 50103 RescoServiceLineResource
     begin
         Rec.Type := "Service Line Type"::Resource;
     end;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        Rec.Type := "Service Line Type"::Resource;
+    end;
 }
