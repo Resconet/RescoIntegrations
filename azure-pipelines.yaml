@@ -9,117 +9,121 @@ trigger:
     include:
       - "*"
 
-variables:
-  PublishArtifact: $[ne(variables['Build.Reason'], 'PullRequest')]
-  Revision: $[counter(replace(variables['Build.Reason'], 'Manual', 'BatchedCI'), 1)]
-
 # https://marketplace.visualstudio.com/items?itemName=Hodor.hodor-alops
-jobs:
-- job: build_resco_integrations
+stages:
+- stage: build_resco_integrations
   displayName: Build Resco Integrations
-  pool:
-    vmImage: windows-latest
   variables:
-  - group: Docker Connection
-  steps:
-  - checkout: self
-    fetchDepth: 1
+    PublishArtifact: $[ne(variables['Build.Reason'], 'PullRequest')]
+    Revision: $[counter(replace(variables['Build.Reason'], 'Manual', 'BatchedCI'), 1)]
+  jobs:
+  - job: build_bc_extension
+    displayName: Build BC Extension
+    pool:
+      vmImage: windows-latest
+    variables:
+    - group: Docker Connection
+    steps:
+    - checkout: self
+      fetchDepth: 1
 
-  - pwsh: |
-      if ("$(Build.SourceBranch)".StartsWith("refs/tags/")) {
-        $VersionMatch = "$(Build.SourceBranch)".Substring(10) | Select-String -Pattern "([0-9`.]+)(-.*)?"
-        if (-not $VersionMatch.Matches.Success) {
-          Write-Host "##[error]Wrong tag format"
-          Exit 1
+    - pwsh: |
+        if ("$(Build.SourceBranch)".StartsWith("refs/tags/")) {
+          $VersionMatch = "$(Build.SourceBranch)".Substring(10) | Select-String -Pattern "([0-9`.]+)(-.*)?"
+          if (-not $VersionMatch.Matches.Success) {
+            Write-Host "##[error]Wrong tag format"
+            Exit 1
+          }
+          $Version = $VersionMatch.Matches.Groups[1].Value
+        } else {
+          $App = Get-Content app.json | ConvertFrom-Json
+          $Version = $App.version.Substring(0, $App.version.LastIndexOf('.'))
         }
-        $Version = $VersionMatch.Matches.Groups[1].Value
-      } else {
-        $App = Get-Content app.json | ConvertFrom-Json
-        $Version = $App.version.Substring(0, $App.version.LastIndexOf('.'))
-      }
-      $AppVersion = $Version + ".$(Revision)"
-      Write-Host "App version: $AppVersion"
-      Write-Host "##vso[task.setvariable variable=AppVersion;]$AppVersion"
-    displayName: Set Up App Version
+        $AppVersion = $Version + ".$(Revision)"
+        Write-Host "App version: $AppVersion"
+        Write-Host "##vso[task.setvariable variable=AppVersion;]$AppVersion"
+      displayName: Set Up App Version
 
-  - task: ALOpsDockerCreate@1
-    displayName: Create Docker Image
-    inputs:
-      artifacttype: Sandbox
-      imageprefix: resco.integrations
-      imagenametemplate: '%IMAGE_PREFIX%.%ARTIFACT_TYPE%:%ARTIFACT_VERSION%-%ARTIFACT_COUNTRY%-%OS_VERSION%-%OS_LTSC%'
-      dockerregistry: rescocloud.azurecr.io
-      dockerusername: $(rescocloud-registry-username)
-      dockerpassword: $(rescocloud-registry-password)
+    - task: ALOpsDockerCreate@1
+      displayName: Create Docker Image
+      inputs:
+        artifacttype: Sandbox
+        imageprefix: resco.integrations
+        imagenametemplate: '%IMAGE_PREFIX%.%ARTIFACT_TYPE%:%ARTIFACT_VERSION%-%ARTIFACT_COUNTRY%-%OS_VERSION%-%OS_LTSC%'
+        dockerregistry: rescocloud.azurecr.io
+        dockerusername: $(rescocloud-registry-username)
+        dockerpassword: $(rescocloud-registry-password)
 
-  - task: ALOpsDockerStart@1
-    displayName: Start Docker Container
-    inputs:
-      docker_image: $(ALOPS_BC_IMAGE)
-      docker_pull: false
+    - task: ALOpsDockerStart@1
+      displayName: Start Docker Container
+      inputs:
+        docker_image: $(ALOPS_BC_IMAGE)
+        docker_pull: false
 
-  - task: ALOpsDockerWait@1
-    displayName: Wait for Connections
-    inputs:
-      search_string: Ready for connections!
+    - task: ALOpsDockerWait@1
+      displayName: Wait for Connections
+      inputs:
+        search_string: Ready for connections!
 
-  - task: ALOpsAppCompiler@1
-    displayName: Build App
-    inputs:
-      usedocker: true
-      nav_app_version: $(AppVersion)
-      publish_artifact: $(PublishArtifact)
-      failed_on_warnings: true
-      updatebuildnumber: false
-      output_alc_logs: false
+    - task: ALOpsAppCompiler@1
+      displayName: Build App
+      inputs:
+        usedocker: true
+        nav_app_version: $(AppVersion)
+        publish_artifact: $(PublishArtifact)
+        failed_on_warnings: true
+        updatebuildnumber: false
+        output_alc_logs: false
 
-  - task: ALOpsDockerRemove@1
-    displayName: Stop Docker Container
-    condition: always()
+    - task: ALOpsDockerRemove@1
+      displayName: Stop Docker Container
+      condition: always()
 
-  - pwsh: |
-      Write-Host "Remove unwanted build tags"
-      $Tags = az pipelines build tag list --build-id $(Build.BuildId) --org $(System.CollectionUri) -p $(System.TeamProject) | ConvertFrom-Json
-      $Tags | ForEach-Object { az pipelines build tag delete --tag $_ --build-id $(Build.BuildId) --org $(System.CollectionUri) -p $(System.TeamProject) }
-    displayName: Clean Up Tags
-    env:
-      AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
+    - pwsh: |
+        Write-Host "Remove unwanted build tags"
+        $Tags = az pipelines build tag list --build-id $(Build.BuildId) --org $(System.CollectionUri) -p $(System.TeamProject) | ConvertFrom-Json
+        $Tags | ForEach-Object { az pipelines build tag delete --tag $_ --build-id $(Build.BuildId) --org $(System.CollectionUri) -p $(System.TeamProject) }
+      displayName: Clean Up Tags
+      env:
+        AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
 
-- deployment: release_resco_integrations
+- stage: release_resco_integrations
   displayName: Release Resco Integrations
-  dependsOn: build_resco_integrations
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-  environment: Resco Release
-  pool:
-    vmImage: ubuntu-latest
-  strategy:
-    runOnce:
-      deploy:
-        steps:
-        - download: current
-          displayName: Download App
-          patterns: "**/*.app"
+  jobs:
+  - deployment: release_bc_extension
+    displayName: Release BC Extension
+    environment: Resco Release
+    pool:
+      vmImage: ubuntu-latest
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            displayName: Download App
+            patterns: "**/*.app"
 
-        - bash: |
-            for f in $(find . -name "*.app"); do
-              pushd $(dirname $f)
-              zip $(Build.ArtifactStagingDirectory)/$(basename -s .app $f).zip $(basename $f)
-              popd
-            done
-            version=$(echo $(Build.SourceBranch) | cut -d / -f 3)
-            echo "##vso[task.setvariable variable=version;]$version"
-          displayName: Prepare App Assets
-          workingDirectory: $(Pipeline.Workspace)
+          - bash: |
+              for f in $(find . -name "*.app"); do
+                pushd $(dirname $f)
+                zip $(Build.ArtifactStagingDirectory)/$(basename -s .app $f).zip $(basename $f)
+                popd
+              done
+              version=$(echo $(Build.SourceBranch) | cut -d / -f 3)
+              echo "##vso[task.setvariable variable=version;]$version"
+            displayName: Prepare App Assets
+            workingDirectory: $(Pipeline.Workspace)
 
-        - task: GitHubRelease@1
-          displayName: Create GitHub Release
-          inputs:
-            gitHubConnection: Resco GitHub
-            repositoryName: Resconet/RescoIntegrations
-            target: master
-            tagSource: userSpecifiedTag
-            tag: $(version)
-            title: V$(version)
-            assets: $(Build.ArtifactStagingDirectory)/*.zip
-            isDraft: true
-            addChangeLog: false
+          - task: GitHubRelease@1
+            displayName: Create GitHub Release
+            inputs:
+              gitHubConnection: Resco GitHub
+              repositoryName: Resconet/RescoIntegrations
+              target: master
+              tagSource: userSpecifiedTag
+              tag: $(version)
+              title: V$(version)
+              assets: $(Build.ArtifactStagingDirectory)/*.zip
+              isDraft: true
+              addChangeLog: false
