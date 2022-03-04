@@ -116,12 +116,10 @@ jobs:
           inputs:
             gitHubConnection: Resco GitHub
             repositoryName: Resconet/RescoIntegrations
-            target: $(Build.SourceBranchName)
+            target: master
             tagSource: userSpecifiedTag
             tag: $(version)
             title: V$(version)
             assets: $(Build.ArtifactStagingDirectory)/*.zip
             isDraft: true
-            changeLogCompareToRelease: lastFullRelease
-            changeLogType: issueBased
-            changeLogLabels: ''
+            addChangeLog: false
