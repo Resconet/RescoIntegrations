@@ -589,6 +589,10 @@ page 50106 RescoItem
                 {
                     Caption = 'Rescheduling Period';
                 }
+                field(rescoIsService; false)
+                {
+                    Caption = 'Resco IsService';
+                }
                 field(reserve; Rec.Reserve)
                 {
                     Caption = 'Reserve';
