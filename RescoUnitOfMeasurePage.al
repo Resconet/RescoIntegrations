@@ -36,10 +36,6 @@ page 50117 RescoUnitOfMeasurePage
                 {
                     Caption = 'RoW Version Number';
                 }
-                field(satUofMClassification; Rec."SAT UofM Classification")
-                {
-                    Caption = 'SAT UofM Classification';
-                }
                 field(symbol; Rec.Symbol)
                 {
                     Caption = 'Symbol';
