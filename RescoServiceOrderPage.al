@@ -585,11 +585,6 @@ page 50115 "Resco Service Order"
                 {
                     Caption = 'Your Reference';
                 }
-                field(RescoStatus; RescoStatus)
-                {
-                    ApplicationArea = All;
-                    Caption = 'RescoStatus', Locked = true;
-                }
                 field(RowVersionNumber; Rec.RowVersionNumber)
                 {
                     ApplicationArea = All;
@@ -602,44 +597,6 @@ page 50115 "Resco Service Order"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         Rec."Document Type" := "Service Document Type"::Order;
-        ConvertRescoStatusToBCStatus();
     end;
 
-    trigger OnModifyRecord(): Boolean
-    begin
-        ConvertRescoStatusToBCStatus();
-    end;
-
-    trigger OnAfterGetCurrRecord()
-    begin
-        //Convert Business Central Status to Resco Status
-        // B.Central    - RescoCloud
-        // Pending 0    - Draft 1
-        // In Process 1 - In Progress 10000
-        // Finished 2   - Completed 10001
-        // On Hold 3    - ????
-        case Rec.Status of
-            "Service Document Status"::Pending:
-                RescoStatus := 1;
-            "Service Document Status"::"In Process":
-                RescoStatus := 10000;
-            "Service Document Status"::Finished:
-                RescoStatus := 10001;
-        end;
-    end;
-
-    var
-        RescoStatus: Integer;
-
-    local procedure ConvertRescoStatusToBCStatus()
-    begin
-        case RescoStatus of
-            1:
-                Rec.Status := "Service Document Status"::Pending;
-            10000:
-                Rec.Status := "Service Document Status"::"In Process";
-            10001:
-                Rec.Status := "Service Document Status"::Finished;
-        end;
-    end;
 }
