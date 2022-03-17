@@ -2,9 +2,6 @@ name: $(Date:yyMMdd)$(rev:-r)
 
 trigger:
   batch: true
-  branches:
-    include:
-      - master
   tags:
     include:
       - "*"
@@ -21,8 +18,6 @@ stages:
     displayName: Build BC Extension
     pool:
       vmImage: windows-latest
-    variables:
-    - group: Docker Connection
     steps:
     - checkout: self
       fetchDepth: 1
@@ -49,10 +44,6 @@ stages:
       inputs:
         artifacttype: Sandbox
         imageprefix: resco.integrations
-        imagenametemplate: '%IMAGE_PREFIX%.%ARTIFACT_TYPE%:%ARTIFACT_VERSION%-%ARTIFACT_COUNTRY%-%OS_VERSION%-%OS_LTSC%'
-        dockerregistry: rescocloud.azurecr.io
-        dockerusername: $(rescocloud-registry-username)
-        dockerpassword: $(rescocloud-registry-password)
 
     - task: ALOpsDockerStart@1
       displayName: Start Docker Container
