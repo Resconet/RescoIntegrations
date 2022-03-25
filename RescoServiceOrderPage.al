@@ -1,7 +1,7 @@
 page 50115 "Resco Service Order"
 {
     PageType = API;
-    Caption = 'RescoServiceOrder', Locked = true;
+    Caption = 'RescoServiceOrder';
     APIPublisher = 'Resco';
     APIVersion = 'v2.0';
     APIGroup = 'RescoIntegrations';
@@ -23,19 +23,16 @@ page 50115 "Resco Service Order"
             {
                 field(DocumentType; Rec."Document Type")
                 {
-                    ApplicationArea = All;
-                    Caption = 'DocumentType', Locked = true;
+                    Caption = 'DocumentType';
                     Editable = false;
                 }
                 field(CustomerNo; Rec."Customer No.")
                 {
-                    ApplicationArea = All;
-                    Caption = 'CustomerNo', Locked = true;
+                    Caption = 'CustomerNo';
                 }
                 field(No; Rec."No.")
                 {
-                    ApplicationArea = All;
-                    Caption = 'No', Locked = true;
+                    Caption = 'No';
                 }
                 field(actualResponseTimeHours; Rec."Actual Response Time (Hours)")
                 {

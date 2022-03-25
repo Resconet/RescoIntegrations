@@ -1,7 +1,7 @@
 page 50110 "Resco Customer"
 {
     PageType = API;
-    Caption = 'RescoCustomer', Locked = true;
+    Caption = 'RescoCustomer';
     APIPublisher = 'Resco';
     APIVersion = 'v2.0';
     APIGroup = 'RescoIntegrations';
@@ -20,74 +20,60 @@ page 50110 "Resco Customer"
             {
                 field(No; Rec."No.")
                 {
-                    ApplicationArea = All;
-                    Caption = 'No', Locked = true;
+                    Caption = 'No';
                     Editable = false;
                 }
                 field(Name; Rec.Name)
                 {
-                    ApplicationArea = All;
-                    Caption = 'Name', Locked = true;
+                    Caption = 'Name';
                 }
                 field(Email; Rec."E-Mail")
                 {
-                    ApplicationArea = All;
-                    Caption = 'Email', Locked = true;
+                    Caption = 'Email';
                 }
                 field(Address; Rec.Address)
                 {
-                    ApplicationArea = All;
-                    Caption = 'Address', Locked = true;
+                    Caption = 'Address';
                 }
                 field(Address2; Rec."Address 2")
                 {
-                    ApplicationArea = All;
-                    Caption = 'Address2', Locked = true;
+                    Caption = 'Address2';
                 }
                 field(CountryRegionCode; Rec."Country/Region Code")
                 {
-                    ApplicationArea = All;
-                    Caption = 'CountryRegionCode', Locked = true;
+                    Caption = 'CountryRegionCode';
                 }
                 field(City; Rec.City)
                 {
-                    ApplicationArea = All;
-                    Caption = 'City', Locked = true;
+                    Caption = 'City';
                 }
                 field(State; Rec.County)
                 {
-                    ApplicationArea = All;
-                    Caption = 'State', Locked = true;
+                    Caption = 'State';
                 }
                 field(PostCode; Rec."Post Code")
                 {
-                    ApplicationArea = All;
-                    Caption = 'PostCode', Locked = true;
+                    Caption = 'PostCode';
                 }
                 field(PhoneNo; Rec."Phone No.")
                 {
-                    ApplicationArea = All;
-                    Caption = 'PhoneNo', Locked = true;
+                    Caption = 'PhoneNo';
                 }
                 field(HomePage; Rec."Home Page")
                 {
-                    ApplicationArea = All;
-                    Caption = 'HomePage', Locked = true;
+                    Caption = 'HomePage';
                 }
                 field(PrimaryContacNo; Rec."Primary Contact No.")
                 {
-                    ApplicationArea = All;
-                    Caption = 'PrimaryContactNo', Locked = true;
+                    Caption = 'PrimaryContactNo';
                 }
                 field(SystemModifiedAt; Rec.SystemModifiedAt)
                 {
-                    ApplicationArea = All;
                     Caption = 'SystemModifiedAt';
                 }
                 field(RowVersionNumber; Rec.RowVersionNumber)
                 {
-                    ApplicationArea = All;
-                    Caption = 'VersionNumber', Locked = true;
+                    Caption = 'VersionNumber';
                 }
             }
         }

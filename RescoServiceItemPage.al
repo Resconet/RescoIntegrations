@@ -1,7 +1,7 @@
 page 50112 "Resco Service Item"
 {
     PageType = API;
-    Caption = 'RescoServiceItem', Locked = true;
+    Caption = 'RescoServiceItem';
     APIPublisher = 'Resco';
     APIVersion = 'v2.0';
     APIGroup = 'RescoIntegrations';
@@ -20,59 +20,48 @@ page 50112 "Resco Service Item"
             {
                 field(No; Rec."No.")
                 {
-                    ApplicationArea = All;
-                    Caption = 'No', Locked = true;
+                    Caption = 'No';
                     Editable = false;
                 }
                 field(Description; Rec.Description)
                 {
-                    ApplicationArea = All;
-                    Caption = 'Description', Locked = true;
+                    Caption = 'Description';
                 }
                 field(SerialNo; Rec."Serial No.")
                 {
-                    ApplicationArea = All;
-                    Caption = 'SerialNo', Locked = true;
+                    Caption = 'SerialNo';
                 }
                 field(Status; Rec.Status)
                 {
-                    ApplicationArea = All;
-                    Caption = 'Status', Locked = true;
+                    Caption = 'Status';
                 }
                 field(LastServiceDate; Rec."Last Service Date")
                 {
-                    ApplicationArea = All;
-                    Caption = 'LastServiceDate', Locked = true;
+                    Caption = 'LastServiceDate';
                 }
                 field(WarrantyStartingDateLabor; Rec."Warranty Starting Date (Labor)")
                 {
-                    ApplicationArea = All;
-                    Caption = 'WarrantyStartingDateLabor', Locked = true;
+                    Caption = 'WarrantyStartingDateLabor';
                 }
                 field(CustomerNo; Rec."Customer No.")
                 {
-                    ApplicationArea = All;
-                    Caption = 'CustomerNo', Locked = true;
+                    Caption = 'CustomerNo';
                 }
                 field(SalesUnitPrice; Rec."Sales Unit Price")
                 {
-                    ApplicationArea = All;
-                    Caption = 'SalesUnitPrice', Locked = true;
+                    Caption = 'SalesUnitPrice';
                 }
                 field(Type; Rec."Type Filter")
                 {
-                    ApplicationArea = All;
-                    Caption = 'Type', Locked = true;
+                    Caption = 'Type';
                 }
                 field(SystemModifiedAt; Rec.SystemModifiedAt)
                 {
-                    ApplicationArea = All;
                     Caption = 'SystemModifiedAt';
                 }
                 field(RowVersionNumber; Rec.RowVersionNumber)
                 {
-                    ApplicationArea = All;
-                    Caption = 'VersionNumber', Locked = true;
+                    Caption = 'VersionNumber';
                 }
             }
         }

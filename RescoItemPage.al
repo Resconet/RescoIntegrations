@@ -1,7 +1,7 @@
 page 50106 RescoItem
 {
     PageType = API;
-    Caption = 'RescoItem', Locked = true;
+    Caption = 'RescoItem';
     APIPublisher = 'Resco';
     APIVersion = 'v2.0';
     APIGroup = 'RescoIntegrations';
