@@ -23,21 +23,17 @@ page 50107 RescoServiceItemLine
                 field(lineNo; Rec."Line No.")
                 {
                     Caption = 'Line No.';
-                    ApplicationArea = All;
                 }
                 field(serviceItemNo; Rec."Service Item No.")
                 {
                     Caption = 'Service Item No.';
-                    ApplicationArea = All;
                 }
                 field(documentNo; Rec."Document No.")
                 {
-                    ApplicationArea = All;
                     Caption = 'Document No.';
                 }
                 field(documentType; Rec."Document Type")
                 {
-                    ApplicationArea = All;
                     Caption = 'Document Type';
                 }
                 field(itemNo; Rec."Item No.")

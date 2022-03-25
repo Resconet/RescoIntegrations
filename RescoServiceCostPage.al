@@ -1,7 +1,7 @@
 page 50114 RescoServiceCost
 {
     PageType = API;
-    Caption = 'RescoServiceCost', Locked = true;
+    Caption = 'RescoServiceCost';
     APIPublisher = 'Resco';
     APIVersion = 'v2.0';
     APIGroup = 'RescoIntegrations';
