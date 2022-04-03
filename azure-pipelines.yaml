@@ -39,6 +39,9 @@ stages:
         Write-Host "##vso[task.setvariable variable=AppVersion;]$AppVersion"
       displayName: Set Up App Version
 
+    - task: ALOpsInfo@1
+      displayName: Print Info
+
     - task: ALOpsDockerCreate@1
       displayName: Create Docker Image
       inputs:
