@@ -1,10 +1,12 @@
 name: $(Date:yyMMdd)$(rev:-r)
 
-trigger:
-  batch: true
-  tags:
-    include:
-      - "*"
+trigger: none
+
+parameters:
+- name: Release
+  type: boolean
+  default: false
+  displayName: Create new release
 
 # https://marketplace.visualstudio.com/items?itemName=Hodor.hodor-alops
 stages:
@@ -23,21 +25,12 @@ stages:
       fetchDepth: 1
 
     - pwsh: |
-        if ("$(Build.SourceBranch)".StartsWith("refs/tags/")) {
-          $VersionMatch = "$(Build.SourceBranch)".Substring(10) | Select-String -Pattern "([0-9`.]+)(-.*)?"
-          if (-not $VersionMatch.Matches.Success) {
-            Write-Host "##[error]Wrong tag format"
-            Exit 1
-          }
-          $Version = $VersionMatch.Matches.Groups[1].Value
-        } else {
-          $App = Get-Content app.json | ConvertFrom-Json
-          $Version = $App.version.Substring(0, $App.version.LastIndexOf('.'))
-        }
-        $AppVersion = $Version + ".$(Revision)"
-        Write-Host "App version: $AppVersion"
-        Write-Host "##vso[task.setvariable variable=AppVersion;]$AppVersion"
+        $App = Get-Content app.json | ConvertFrom-Json
+        $Version = $App.version.Substring(0, $App.version.LastIndexOf('.'))
+        Write-Host "App version: $Version"
+        Write-Host "##vso[task.setvariable variable=AppVersion;isOutput=true]$Version"
       displayName: Set Up App Version
+      name: setup
 
     - task: ALOpsInfo@1
       displayName: Print Info
@@ -63,7 +56,7 @@ stages:
       displayName: Build App
       inputs:
         usedocker: true
-        nav_app_version: $(AppVersion)
+        nav_app_version: $(setup.AppVersion).$(Revision)
         publish_artifact: $(PublishArtifact)
         failed_on_warnings: true
         updatebuildnumber: false
@@ -73,17 +66,11 @@ stages:
       displayName: Stop Docker Container
       condition: always()
 
-    - pwsh: |
-        Write-Host "Remove unwanted build tags"
-        $Tags = az pipelines build tag list --build-id $(Build.BuildId) --org $(System.CollectionUri) -p $(System.TeamProject) | ConvertFrom-Json
-        $Tags | ForEach-Object { az pipelines build tag delete --tag $_ --build-id $(Build.BuildId) --org $(System.CollectionUri) -p $(System.TeamProject) }
-      displayName: Clean Up Tags
-      env:
-        AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
-
 - stage: release_resco_integrations
   displayName: Release Resco Integrations
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  condition: and(succeeded(), ${{ parameters.Release }})
+  variables:
+    AppVersion: $[ stageDependencies.build_resco_integrations.build_bc_extension.outputs['setup.AppVersion'] ]
   jobs:
   - deployment: release_bc_extension
     displayName: Release BC Extension
@@ -104,8 +91,6 @@ stages:
                 zip $(Build.ArtifactStagingDirectory)/$(basename -s .app $f).zip $(basename $f)
                 popd
               done
-              version=$(echo $(Build.SourceBranch) | cut -d / -f 3)
-              echo "##vso[task.setvariable variable=version;]$version"
             displayName: Prepare App Assets
             workingDirectory: $(Pipeline.Workspace)
 
@@ -116,8 +101,8 @@ stages:
               repositoryName: Resconet/RescoIntegrations
               target: master
               tagSource: userSpecifiedTag
-              tag: $(version)
-              title: V$(version)
+              tag: $(AppVersion)
+              title: V$(AppVersion)
               assets: $(Build.ArtifactStagingDirectory)/*.zip
               isDraft: true
               addChangeLog: false
